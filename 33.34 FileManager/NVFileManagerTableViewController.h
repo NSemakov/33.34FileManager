@@ -15,6 +15,7 @@
 @property (strong,nonatomic) NSOperationQueue* queue;
 @property (strong,nonatomic) NSMutableDictionary* dictOfOperations;
 @property (assign,nonatomic) BOOL isItemDeleted;
+@property (strong,nonatomic) UIAlertController* alertCtrl;
 - (IBAction)actionBackToRoot:(UIBarButtonItem*)sender;
 - (IBAction)actionAdd:(UIBarButtonItem *)sender;
 

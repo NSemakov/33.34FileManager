@@ -155,6 +155,24 @@
     }];
     return arrayOut;
 }
+
+- (void) handleNameOfNewFolder:(NSString*) folderName{
+    NSError* error=nil;
+    NSString* newPathForDirectory=[self.path stringByAppendingPathComponent:folderName];
+    BOOL isAccess=[[NSFileManager defaultManager] createDirectoryAtPath:newPathForDirectory withIntermediateDirectories:NO attributes:nil error:&error];
+    if (error) {
+        NSLog(@"error:%@",[error localizedDescription]);
+    }
+    if (isAccess) {
+        self.arrayOfContent=[self contentsOfDirectoryWithURLAtFullPath:self.path];
+        [self.tableView beginUpdates];
+        NSInteger index=[self.arrayOfContent indexOfObject:(NSString*)[newPathForDirectory lastPathComponent]];
+        NSIndexPath* indexPath=[NSIndexPath indexPathForRow:index inSection:0];
+        [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
+        [self.tableView endUpdates];
+    }
+    
+}
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
@@ -304,20 +322,21 @@
 }
 
 - (IBAction)actionAdd:(UIBarButtonItem *)sender {
-    NSError* error=nil;
-    NSString* newPathForDirectory=[self.path stringByAppendingPathComponent:@"hello"];
-    BOOL isAccess=[[NSFileManager defaultManager] createDirectoryAtPath:newPathForDirectory withIntermediateDirectories:NO attributes:nil error:&error];
-    if (error) {
-        NSLog(@"error:%@",[error localizedDescription]);
-    }
-    if (isAccess) {
-        self.arrayOfContent=[self contentsOfDirectoryWithURLAtFullPath:self.path];
-        [self.tableView beginUpdates];
-        NSInteger index=[self.arrayOfContent indexOfObject:(NSString*)[newPathForDirectory lastPathComponent]];
-        NSIndexPath* indexPath=[NSIndexPath indexPathForRow:index inSection:0];
-        [self.tableView insertRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationRight];
-        [self.tableView endUpdates];
-    }
+    self.alertCtrl=[UIAlertController alertControllerWithTitle:@"Input folder name" message:@"please" preferredStyle:UIAlertControllerStyleAlert];
+    [self.alertCtrl addTextFieldWithConfigurationHandler:^(UITextField *textField) {
+        textField.placeholder=@"New folder name";
+    }];
     
+    UIAlertAction* okAction=[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        UITextField* field=self.alertCtrl.textFields.firstObject;
+        [self handleNameOfNewFolder:field.text];
+    }];
+    UIAlertAction* cancelAction=[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }];
+    [self.alertCtrl addAction:okAction];
+    [self.alertCtrl addAction:cancelAction];
+    [self presentViewController:self.alertCtrl animated:YES completion:nil];
 }
+
 @end
